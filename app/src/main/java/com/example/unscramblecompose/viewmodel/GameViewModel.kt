@@ -1,5 +1,6 @@
 package com.example.unscramblecompose.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,7 +35,6 @@ class GameViewModel : ViewModel() {
 
     fun skipWord() {
         updateGameState(_uiState.value.score)
-        // Reset user guess
         updateUserGuess("")
     }
 
@@ -66,8 +66,8 @@ class GameViewModel : ViewModel() {
             _uiState.update { currentState ->
                 currentState.copy(
                     isGuessedWordWrong = false,
-                    currentScrambledWord = shuffleWord(),
                     currentWordCount = currentState.currentWordCount.inc(),
+                    currentScrambledWord = shuffleWord(),
                     score = updatedScore
                 )
             }
@@ -76,6 +76,8 @@ class GameViewModel : ViewModel() {
 
     private fun shuffleWord(): String {
         val word = gameWords[_uiState.value.currentWordCount - 1]
+        Log.d("word", _uiState.value.currentWordCount.toString())
+        Log.d("word", gameWords.toString())
         currentWord = word
         val tempWord = word.toCharArray()
         tempWord.shuffle()
