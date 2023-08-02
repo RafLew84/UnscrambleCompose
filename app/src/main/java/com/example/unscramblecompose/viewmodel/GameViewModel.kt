@@ -16,20 +16,29 @@
 
 package com.example.unscramblecompose.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.unscramblecompose.data.DataProvider
+import com.example.unscramblecompose.data.GameState
 import com.example.unscramblecompose.data.MAX_NO_OF_WORDS
 import com.example.unscramblecompose.data.SCORE_INCREASE
+import com.example.unscramblecompose.repository.GameRepository
 import com.example.unscramblecompose.ui.screens.GameUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class GameViewModel : ViewModel() {
+class GameViewModel(application: Application) : ViewModel() {
+
+    private val repository: GameRepository
+
     // Game UI state
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -42,7 +51,34 @@ class GameViewModel : ViewModel() {
     private lateinit var currentWord: String
 
     init {
+        repository = GameRepository(application)
         resetGame()
+    }
+
+    fun saveGame(){
+        viewModelScope.launch {
+            repository.saveGameState(GameState(
+                gameUiState = _uiState.value,
+                usedWords = usedWords
+            ))
+        }
+    }
+
+    fun loadGame(){
+        viewModelScope.launch {
+            repository.loadGameState().collect{gameState ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        currentScrambledWord = gameState.gameUiState.currentScrambledWord,
+                        currentWordCount = gameState.gameUiState.currentWordCount,
+                        score = gameState.gameUiState.score,
+                        isGuessedWordWrong = gameState.gameUiState.isGuessedWordWrong,
+                        isGameOver = gameState.gameUiState.isGameOver
+                    )
+                }
+                usedWords = gameState.usedWords.toMutableSet()
+            }
+        }
     }
 
     /*

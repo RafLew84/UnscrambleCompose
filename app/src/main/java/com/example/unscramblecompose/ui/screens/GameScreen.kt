@@ -17,6 +17,7 @@
 package com.example.unscramblecompose.ui.screens
 
 import android.app.Activity
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,11 +56,18 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unscramblecompose.viewmodel.GameViewModel
+import com.example.unscramblecompose.viewmodel.GameViewModelFactory
 
 @Composable
-fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
+fun GameScreen() {
+    val gameViewModel: GameViewModel = viewModel(
+        LocalViewModelStoreOwner.current!!,
+        "GameViewModel",
+        GameViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
     val gameUiState by gameViewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
@@ -113,6 +121,26 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             ) {
                 Text(
                     text = "Pomiń",
+                    fontSize = 16.sp
+                )
+            }
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { gameViewModel.saveGame() }
+            ) {
+                Text(
+                    text = "Zapisz",
+                    fontSize = 16.sp
+                )
+            }
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { gameViewModel.loadGame() }
+            ) {
+                Text(
+                    text = "Wczytaj",
                     fontSize = 16.sp
                 )
             }
