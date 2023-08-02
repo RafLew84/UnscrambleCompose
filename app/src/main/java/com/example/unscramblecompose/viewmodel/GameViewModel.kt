@@ -59,14 +59,15 @@ class GameViewModel(application: Application) : ViewModel() {
         viewModelScope.launch {
             repository.saveGameState(GameState(
                 gameUiState = _uiState.value,
-                usedWords = usedWords
+                usedWords = usedWords,
+                currentWord = currentWord
             ))
         }
     }
 
     fun loadGame(){
         viewModelScope.launch {
-            repository.loadGameState().collect{gameState ->
+            repository.loadGameState().collect{ gameState ->
                 _uiState.update { currentState ->
                     currentState.copy(
                         currentScrambledWord = gameState.gameUiState.currentScrambledWord,
@@ -77,6 +78,7 @@ class GameViewModel(application: Application) : ViewModel() {
                     )
                 }
                 usedWords = gameState.usedWords.toMutableSet()
+                currentWord = gameState.currentWord
             }
         }
     }

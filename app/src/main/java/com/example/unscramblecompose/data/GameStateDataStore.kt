@@ -26,6 +26,7 @@ object GameStateDataStore {
     private val IS_GUESSED_WORD_WRONG_KEY = booleanPreferencesKey("is_guessed_word_wrong")
     private val IS_GAME_OVER_KEY = booleanPreferencesKey("is_game_over")
     private val USED_WORDS_KEY = stringSetPreferencesKey("used_words")
+    private val CURRENT_WORD_KEY = stringPreferencesKey("current_word")
 
     suspend fun saveGameState(context: Context, gameState: GameState) {
         context.dataStore.edit { preferences ->
@@ -35,6 +36,7 @@ object GameStateDataStore {
             preferences[IS_GUESSED_WORD_WRONG_KEY] = gameState.gameUiState.isGuessedWordWrong
             preferences[IS_GAME_OVER_KEY] = gameState.gameUiState.isGameOver
             preferences[USED_WORDS_KEY] = gameState.usedWords
+            preferences[CURRENT_WORD_KEY] = gameState.currentWord
         }
     }
 
@@ -55,6 +57,7 @@ object GameStateDataStore {
                 val isGuessedWordWrong = preferences[IS_GUESSED_WORD_WRONG_KEY] ?: false
                 val isGameOver = preferences[IS_GAME_OVER_KEY] ?: false
                 val usedWordsSet = preferences[USED_WORDS_KEY] ?: emptySet()
+                val currentWord = preferences[CURRENT_WORD_KEY] ?: ""
 
                 GameState(
                     GameUiState(
@@ -64,7 +67,8 @@ object GameStateDataStore {
                         isGuessedWordWrong,
                         isGameOver
                     ),
-                    usedWordsSet.toMutableSet()
+                    usedWordsSet.toMutableSet(),
+                    currentWord
                 )
             }
     }
